@@ -1,602 +1,638 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>Password Generator Application</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+      };
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
     <link
       href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap"
       rel="stylesheet"
     />
-    <style>
-      :root {
-        --bg: #eef0fa;
-        --panel: #ffffff;
-        --ink: #14142b;
-        --violet: #6c5ce7;
-        --violet-dark: #4b3fbf;
-        --violet-light: #b9b1ff;
-        --dark-box: #171827;
-        --dark-box-text: #f4f4ff;
-        --border: #14142b;
-        --mint: #7ee0c3;
-        --sky-top: #dfe4fb;
-        --sky-bottom: #f3eefc;
-      }
 
-      * {
-        box-sizing: border-box;
-      }
-
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-        min-height: 100%;
-        background: linear-gradient(180deg, var(--sky-top), var(--sky-bottom));
-        color: var(--ink);
-        font-family: "VT323", monospace;
-        font-size: 20px;
-        -webkit-font-smoothing: none;
-        image-rendering: pixelated;
-      }
-
-      h1,
-      h2,
-      h3,
-      .pixel-font {
-        font-family: "Press Start 2P", monospace;
-      }
-
-      /* ---------- pixel background scene ---------- */
-      .scene {
-        position: fixed;
-        inset: 0;
-        z-index: -1;
-        overflow: hidden;
-      }
-
-      .cloud {
-        position: absolute;
-        background: #ffffff;
-        opacity: 0.8;
-        box-shadow:
-          16px 0 0 0 #ffffff,
-          32px 0 0 0 #ffffff,
-          16px -12px 0 0 #ffffff,
-          32px -12px 0 0 #ffffff,
-          0 12px 0 0 #ffffff,
-          16px 12px 0 0 #ffffff,
-          32px 12px 0 0 #ffffff,
-          48px 12px 0 0 #ffffff;
-        width: 12px;
-        height: 12px;
-        image-rendering: pixelated;
-      }
-      .cloud.c1 {
-        top: 8%;
-        left: 4%;
-        transform: scale(1.4);
-        opacity: 0.7;
-      }
-      .cloud.c2 {
-        top: 14%;
-        right: 6%;
-        transform: scale(1.1);
-        opacity: 0.6;
-      }
-      .cloud.c3 {
-        top: 40%;
-        left: 80%;
-        transform: scale(0.9);
-        opacity: 0.5;
-      }
-      .cloud.c4 {
-        top: 55%;
-        left: 2%;
-        transform: scale(0.8);
-        opacity: 0.45;
-      }
-
-      .mountains {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 42vh;
-        min-height: 220px;
-        background: linear-gradient(transparent, transparent);
-      }
-      .range {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        height: 100%;
-        display: block;
-      }
-      .range svg {
-        width: 100%;
-        height: 100%;
-        display: block;
-      }
-
-      .stars-toggle-icon {
-        width: 16px;
-        height: 16px;
-      }
-
-      /* ---------- layout ---------- */
-      .wrap {
-        position: relative;
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 20px 18px 60px;
-      }
-
-      header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        flex-wrap: wrap;
-        padding: 10px 4px 26px;
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .brand-icon {
-        width: 16px;
-        height: 16px;
-        background: var(--violet);
-        border: 3px solid var(--ink);
-      }
-      .brand-name {
-        font-size: 15px;
-        letter-spacing: 1px;
-      }
-
-      nav {
-        display: flex;
-        gap: 6px;
-        background: var(--panel);
-        border: 3px solid var(--ink);
-        padding: 4px;
-        box-shadow: 3px 3px 0 var(--ink);
-      }
-      nav button {
-        font-family: "VT323", monospace;
-        font-size: 18px;
-        background: transparent;
-        border: none;
-        padding: 6px 14px;
-        cursor: pointer;
-        color: var(--ink);
-      }
-      nav button.active {
-        background: var(--ink);
-        color: #fff;
-      }
-
-      .tagline {
-        text-align: center;
-        font-size: 16px;
-        letter-spacing: 3px;
-        color: var(--violet-dark);
-        margin-bottom: 8px;
-      }
-
-      h1.title {
-        text-align: center;
-        font-size: 30px;
-        line-height: 1.6;
-        margin: 6px 0 10px;
-      }
-      h1.title span {
-        color: var(--violet);
-        display: inline-block;
-      }
-
-      .subtitle {
-        text-align: center;
-        font-size: 20px;
-        color: #4b4b63;
-        margin-bottom: 28px;
-      }
-
-      /* password display */
-      .pass-box {
-        background: var(--dark-box);
-        border: 3px solid var(--ink);
-        box-shadow: 4px 4px 0 var(--ink);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 16px;
-        margin-bottom: 22px;
-      }
-      .pass-text {
-        flex: 1;
-        color: var(--dark-box-text);
-        font-family: "VT323", monospace;
-        font-size: 26px;
-        letter-spacing: 2px;
-        overflow-x: auto;
-        white-space: nowrap;
-        padding: 4px 2px;
-      }
-      .icon-btn {
-        min-width: 64px;
-        height: 44px;
-        flex: 0 0 auto;
-        border: 3px solid var(--ink);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-family: "VT323", monospace;
-        font-size: 17px;
-        letter-spacing: 1px;
-        padding: 0 12px;
-        background: #3a3b52;
-        color: #fff;
-        box-shadow: 3px 3px 0 var(--ink);
-        transition: transform 0.06s ease;
-      }
-      .icon-btn:active {
-        transform: translate(2px, 2px);
-        box-shadow: 1px 1px 0 var(--ink);
-      }
-      .icon-btn.refresh {
-        background: var(--violet);
-      }
-      .icon-btn.copied {
-        background: var(--mint);
-        color: #14142b;
-      }
-
-      /* controls panel */
-      .panel {
-        background: var(--panel);
-        border: 3px solid var(--ink);
-        box-shadow: 4px 4px 0 var(--ink);
-        padding: 22px;
-      }
-
-      .length-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        margin-bottom: 10px;
-        font-size: 18px;
-      }
-      .length-row b {
-        font-size: 22px;
-      }
-
-      input[type="range"] {
-        width: 100%;
-        appearance: none;
-        -webkit-appearance: none;
-        height: 10px;
-        background: #e2e2f0;
-        border: 2px solid var(--ink);
-        margin-bottom: 4px;
-      }
-      input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 22px;
-        height: 22px;
-        background: var(--panel);
-        border: 3px solid var(--violet);
-        cursor: pointer;
-      }
-      input[type="range"]::-moz-range-thumb {
-        width: 18px;
-        height: 18px;
-        background: var(--panel);
-        border: 3px solid var(--violet);
-        cursor: pointer;
-      }
-
-      .range-labels {
-        display: flex;
-        justify-content: space-between;
-        font-size: 16px;
-        color: #666;
-        margin-bottom: 20px;
-      }
-
-      .opts {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 14px 18px;
-        margin-bottom: 22px;
-      }
-      .opt {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 18px;
-        cursor: pointer;
-        user-select: none;
-      }
-      .opt input {
-        display: none;
-      }
-      .checkbox {
-        width: 24px;
-        height: 24px;
-        border: 3px solid var(--ink);
-        background: #fff;
-        flex: 0 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-        color: #fff;
-      }
-      .opt input:checked + .checkbox {
-        background: var(--violet);
-      }
-
-      .generate-btn {
-        width: 100%;
-        background: var(--violet);
-        color: #fff;
-        border: 3px solid var(--ink);
-        box-shadow: 4px 4px 0 var(--ink);
-        padding: 16px;
-        font-family: "VT323", monospace;
-        font-size: 22px;
-        letter-spacing: 2px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        transition: transform 0.06s ease;
-      }
-      .generate-btn:active {
-        transform: translate(3px, 3px);
-        box-shadow: 1px 1px 0 var(--ink);
-      }
-
-      .strength {
-        margin-top: 14px;
-        font-size: 16px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .strength-bar {
-        flex: 1;
-        height: 10px;
-        background: #e2e2f0;
-        border: 2px solid var(--ink);
-        position: relative;
-        overflow: hidden;
-      }
-      .strength-fill {
-        height: 100%;
-        width: 0%;
-        background: var(--violet);
-        transition:
-          width 0.2s ease,
-          background 0.2s ease;
-      }
-
-      /* feature row */
-      .features {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
-        margin-top: 30px;
-        text-align: center;
-      }
-      .feature b {
-        display: block;
-        font-size: 13px;
-        margin: 8px 0 4px;
-        letter-spacing: 1px;
-      }
-      .feature span {
-        font-size: 16px;
-        color: #555;
-      }
-      .feature .ico {
-        font-size: 24px;
-      }
-
-      footer {
-        text-align: center;
-        margin-top: 40px;
-        font-size: 15px;
-        color: #555;
-      }
-
-      @media (max-width: 560px) {
-        h1.title {
-          font-size: 22px;
-        }
-        .pass-text {
-          font-size: 20px;
-        }
-        .opts {
-          grid-template-columns: 1fr;
-        }
-        .features {
-          grid-template-columns: 1fr;
-        }
-        nav button {
-          padding: 6px 10px;
-          font-size: 16px;
-        }
-        .brand-name {
-          font-size: 13px;
-        }
-      }
-    </style>
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
   </head>
-  <body>
-    <div class="wrap">
-      <h1 class="title pixel-font">PASSWORD <span>GENERATOR</span></h1>
-      <p class="subtitle">Create strong, random passwords in seconds.</p>
 
-      <div class="pass-box">
-        <div class="pass-text" id="passOutput">K8x!mP3@qL9v#T2f</div>
-        <div class="icon-btn" id="copyBtn" title="Copy password">COPY</div>
-        <div class="icon-btn refresh" id="genBtn" title="Generate new password">
-          REFRESH
-        </div>
-      </div>
+  <body
+    class="min-h-screen overflow-x-hidden bg-[#eef1ff] font-['VT323'] text-[#171b32] transition-colors duration-300 dark:bg-[#0d1122] dark:text-[#f2f4ff]"
+  >
+    <!-- BACKGROUNDS -->
 
-      <div class="panel">
-        <div class="length-row">
-          <span>LENGTH:</span>
-          <b id="lengthVal">16</b>
-        </div>
-        <input type="range" id="lengthSlider" min="4" max="64" value="16" />
-        <div class="range-labels"><span>4</span><span>64</span></div>
+    <img
+      src="/images/background.png"
+      id="lightBackground"
+      class="fixed inset-0 -z-20 h-full w-full object-cover"
+      alt=""
+    />
 
-        <div class="opts">
-          <label class="opt">
-            <input type="checkbox" id="optUpper" checked />
-            <span class="checkbox">✓</span>
-            UPPERCASE (A-Z)
-          </label>
-          <label class="opt">
-            <input type="checkbox" id="optNumbers" checked />
-            <span class="checkbox">✓</span>
-            NUMBERS (0-9)
-          </label>
-          <label class="opt">
-            <input type="checkbox" id="optLower" checked />
-            <span class="checkbox">✓</span>
-            lowercase (a-z)
-          </label>
-          <label class="opt">
-            <input type="checkbox" id="optSymbols" checked />
-            <span class="checkbox">✓</span>
-            SYMBOLS (!@#...)
-          </label>
-        </div>
+    <img
+      src="/images/background-dark.png"
+      id="darkBackground"
+      class="fixed inset-0 -z-20 hidden h-full w-full object-cover"
+      alt=""
+    />
 
-        <button class="generate-btn" id="generateBtn">GENERATE PASSWORD</button>
+    <!-- BACKGROUND OVERLAY -->
 
-        <div class="strength">
-          <span id="strengthLabel">STRONG</span>
-          <div class="strength-bar">
-            <div class="strength-fill" id="strengthFill"></div>
+    <div
+      class="fixed inset-0 -z-10 bg-gradient-to-b from-white/80 via-white/45 to-white/15 dark:from-[#080b17]/90 dark:via-[#080b17]/65 dark:to-[#080b17]/35"
+    ></div>
+
+    <!-- THEME BUTTON -->
+
+    <button
+      id="themeButton"
+      aria-label="Toggle theme"
+      class="fixed right-5 top-5 z-50 grid h-11 w-11 place-items-center border-2 border-[#cdd2e9] bg-white/80 text-[#171b32] shadow-[3px_3px_0_rgba(29,35,66,0.14)] backdrop-blur-md transition hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 dark:border-[#343c5d] dark:bg-[#13182c]/85 dark:text-white"
+    >
+      <!-- SUN -->
+
+      <svg
+        id="sunIcon"
+        class="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <circle cx="12" cy="12" r="4"></circle>
+
+        <path
+          d="
+        M12 2v2
+        M12 20v2
+        M4.93 4.93l1.41 1.41
+        M17.66 17.66l1.41 1.41
+        M2 12h2
+        M20 12h2
+        M4.93 19.07l1.41-1.41
+        M17.66 6.34l1.41-1.41
+      "
+        ></path>
+      </svg>
+
+      <!-- MOON -->
+
+      <svg
+        id="moonIcon"
+        class="hidden h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path
+          d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5A8.5 8.5 0 1 0 20.5 14.5Z"
+        ></path>
+      </svg>
+    </button>
+
+    <!-- PAGE -->
+
+    <main class="mx-auto w-[min(760px,calc(100%-32px))] py-20 sm:py-24">
+      <!-- HEADER -->
+
+      <header class="mb-7 text-center">
+        <h1
+          class="font-['Press_Start_2P'] text-[25px] leading-[1.55] tracking-[-1px] sm:text-[38px]"
+        >
+          PASSWORD
+          <br />
+
+          <span class="text-[#6852ed]"> GENERATOR </span>
+        </h1>
+
+        <p class="mt-3 text-lg text-[#727a99] dark:text-[#929bb9] sm:text-xl">
+          Create a strong password in seconds.
+        </p>
+      </header>
+
+      <!-- APP -->
+
+      <section class="flex flex-col gap-4">
+        <!-- PASSWORD DISPLAY -->
+
+        <div
+          class="relative flex min-h-[84px] items-center overflow-hidden border-2 border-[#15192d] bg-[#15192d] p-3 shadow-[5px_5px_0_rgba(29,35,66,0.14)]"
+        >
+          <!-- LEFT ACCENT -->
+
+          <div class="absolute left-0 top-0 h-full w-1 bg-[#6852ed]"></div>
+
+          <!-- PASSWORD -->
+
+          <div
+            id="password"
+            class="min-w-0 flex-1 overflow-x-auto whitespace-nowrap px-3 text-[22px] tracking-[2px] text-white scrollbar-hide sm:text-[27px]"
+          >
+            K8x!mP3@qL9v#T2f
+          </div>
+
+          <!-- ACTIONS -->
+
+          <div class="flex gap-1.5">
+            <!-- COPY -->
+
+            <button
+              id="copyButton"
+              title="Copy password"
+              class="group grid h-11 w-11 place-items-center bg-[#202641] text-white transition hover:bg-[#303854] active:translate-x-0.5 active:translate-y-0.5 sm:h-12 sm:w-12"
+            >
+              <svg
+                id="copyIcon"
+                class="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="8" y="8" width="12" height="12" rx="1"></rect>
+
+                <path
+                  d="
+                M16 8V5
+                a1 1 0 0 0-1-1
+                H5
+                a1 1 0 0 0-1 1
+                v10
+                a1 1 0 0 0 1 1
+                h3
+              "
+                ></path>
+              </svg>
+            </button>
+
+            <!-- REFRESH -->
+
+            <button
+              id="refreshButton"
+              title="Generate password"
+              class="grid h-11 w-11 place-items-center bg-[#6852ed] text-white transition hover:bg-[#8068ff] active:translate-x-0.5 active:translate-y-0.5 sm:h-12 sm:w-12"
+            >
+              <svg
+                class="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M20 11a8 8 0 0 0-14-5L4 8"></path>
+                <path d="M4 4v4h4"></path>
+
+                <path d="M4 13a8 8 0 0 0 14 5l2-2"></path>
+                <path d="M20 20v-4h-4"></path>
+              </svg>
+            </button>
           </div>
         </div>
-      </div>
-    </div>
+
+        <!-- CONTROLS -->
+
+        <div
+          class="border-2 border-[#cdd2e9] bg-white/80 p-5 shadow-[5px_5px_0_rgba(29,35,66,0.10)] backdrop-blur-xl dark:border-[#343c5d] dark:bg-[#13182c]/85 sm:p-6"
+        >
+          <!-- LENGTH HEADER -->
+
+          <div class="mb-3 flex items-center justify-between">
+            <span
+              class="text-lg tracking-[2px] text-[#727a99] dark:text-[#929bb9]"
+            >
+              PASSWORD LENGTH
+            </span>
+
+            <strong id="lengthValue" class="text-[29px] text-[#6852ed]">
+              16
+            </strong>
+          </div>
+
+          <!-- SLIDER -->
+
+          <div class="relative h-5">
+            <div
+              class="absolute left-0 top-2 h-2 w-full bg-[#cdd2e9] dark:bg-[#343c5d]"
+            ></div>
+
+            <div
+              id="sliderProgress"
+              class="absolute left-0 top-2 h-2 bg-[#6852ed]"
+              style="width: 20%"
+            ></div>
+
+            <input
+              id="lengthSlider"
+              type="range"
+              min="4"
+              max="64"
+              value="16"
+              class="absolute left-0 top-0 h-5 w-full cursor-pointer appearance-none bg-transparent accent-[#6852ed]"
+            />
+          </div>
+
+          <!-- RANGE VALUES -->
+
+          <div
+            class="mt-1 flex justify-between text-base text-[#727a99] dark:text-[#929bb9]"
+          >
+            <span>4</span>
+            <span>64</span>
+          </div>
+
+          <!-- OPTIONS -->
+
+          <div class="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <!-- UPPERCASE -->
+
+            <label
+              class="group flex min-h-[43px] cursor-pointer items-center gap-2 border-2 border-[#cdd2e9] bg-white px-2.5 text-base text-[#727a99] transition hover:-translate-y-0.5 hover:border-[#6852ed] hover:text-[#171b32] dark:border-[#343c5d] dark:bg-[#151a30] dark:text-[#929bb9] dark:hover:text-white"
+            >
+              <input
+                id="uppercase"
+                type="checkbox"
+                checked
+                class="peer hidden"
+              />
+
+              <span
+                class="grid h-5 w-5 place-items-center border-2 border-[#cdd2e9] text-transparent peer-checked:border-[#6852ed] peer-checked:bg-[#6852ed] peer-checked:text-white dark:border-[#343c5d]"
+              >
+                ✓
+              </span>
+
+              <span> Uppercase </span>
+            </label>
+
+            <!-- LOWERCASE -->
+
+            <label
+              class="group flex min-h-[43px] cursor-pointer items-center gap-2 border-2 border-[#cdd2e9] bg-white px-2.5 text-base text-[#727a99] transition hover:-translate-y-0.5 hover:border-[#6852ed] hover:text-[#171b32] dark:border-[#343c5d] dark:bg-[#151a30] dark:text-[#929bb9] dark:hover:text-white"
+            >
+              <input
+                id="lowercase"
+                type="checkbox"
+                checked
+                class="peer hidden"
+              />
+
+              <span
+                class="grid h-5 w-5 place-items-center border-2 border-[#cdd2e9] text-transparent peer-checked:border-[#6852ed] peer-checked:bg-[#6852ed] peer-checked:text-white dark:border-[#343c5d]"
+              >
+                ✓
+              </span>
+
+              <span> Lowercase </span>
+            </label>
+
+            <!-- NUMBERS -->
+
+            <label
+              class="group flex min-h-[43px] cursor-pointer items-center gap-2 border-2 border-[#cdd2e9] bg-white px-2.5 text-base text-[#727a99] transition hover:-translate-y-0.5 hover:border-[#6852ed] hover:text-[#171b32] dark:border-[#343c5d] dark:bg-[#151a30] dark:text-[#929bb9] dark:hover:text-white"
+            >
+              <input id="numbers" type="checkbox" checked class="peer hidden" />
+
+              <span
+                class="grid h-5 w-5 place-items-center border-2 border-[#cdd2e9] text-transparent peer-checked:border-[#6852ed] peer-checked:bg-[#6852ed] peer-checked:text-white dark:border-[#343c5d]"
+              >
+                ✓
+              </span>
+
+              <span> Numbers </span>
+            </label>
+
+            <!-- SYMBOLS -->
+
+            <label
+              class="group flex min-h-[43px] cursor-pointer items-center gap-2 border-2 border-[#cdd2e9] bg-white px-2.5 text-base text-[#727a99] transition hover:-translate-y-0.5 hover:border-[#6852ed] hover:text-[#171b32] dark:border-[#343c5d] dark:bg-[#151a30] dark:text-[#929bb9] dark:hover:text-white"
+            >
+              <input id="symbols" type="checkbox" checked class="peer hidden" />
+
+              <span
+                class="grid h-5 w-5 place-items-center border-2 border-[#cdd2e9] text-transparent peer-checked:border-[#6852ed] peer-checked:bg-[#6852ed] peer-checked:text-white dark:border-[#343c5d]"
+              >
+                ✓
+              </span>
+
+              <span> Symbols </span>
+            </label>
+          </div>
+
+          <!-- GENERATE -->
+
+          <button
+            id="generateButton"
+            class="mt-5 h-[60px] w-full bg-[#6852ed] text-xl tracking-[3px] text-white shadow-[4px_4px_0_#4632bd] transition hover:bg-[#8068ff] active:translate-x-[3px] active:translate-y-[3px] active:shadow-[1px_1px_0_#4632bd]"
+          >
+            GENERATE PASSWORD →
+          </button>
+
+          <!-- STRENGTH -->
+
+          <div class="mt-5 flex items-center gap-3">
+            <span
+              id="strengthLabel"
+              class="min-w-[85px] text-base tracking-[1px] text-[#727a99] dark:text-[#929bb9]"
+            >
+              STRONG
+            </span>
+
+            <div id="strengthMeter" class="grid flex-1 grid-cols-12 gap-1">
+              <span class="strength-block h-2 bg-[#55c878]"></span>
+              <span class="strength-block h-2 bg-[#55c878]"></span>
+              <span class="strength-block h-2 bg-[#55c878]"></span>
+              <span class="strength-block h-2 bg-[#55c878]"></span>
+              <span class="strength-block h-2 bg-[#55c878]"></span>
+              <span class="strength-block h-2 bg-[#55c878]"></span>
+
+              <span
+                class="strength-block h-2 bg-[#cdd2e9] dark:bg-[#343c5d]"
+              ></span>
+              <span
+                class="strength-block h-2 bg-[#cdd2e9] dark:bg-[#343c5d]"
+              ></span>
+              <span
+                class="strength-block h-2 bg-[#cdd2e9] dark:bg-[#343c5d]"
+              ></span>
+              <span
+                class="strength-block h-2 bg-[#cdd2e9] dark:bg-[#343c5d]"
+              ></span>
+              <span
+                class="strength-block h-2 bg-[#cdd2e9] dark:bg-[#343c5d]"
+              ></span>
+              <span
+                class="strength-block h-2 bg-[#cdd2e9] dark:bg-[#343c5d]"
+              ></span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
 
     <script>
-      const lower = "abcdefghijklmnopqrstuvwxyz";
-      const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      const numbers = "0123456789";
-      const symbols = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+      const LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
 
-      const lengthSlider = document.getElementById("lengthSlider");
-      const lengthVal = document.getElementById("lengthVal");
-      const optUpper = document.getElementById("optUpper");
-      const optLower = document.getElementById("optLower");
-      const optNumbers = document.getElementById("optNumbers");
-      const optSymbols = document.getElementById("optSymbols");
-      const passOutput = document.getElementById("passOutput");
-      const generateBtn = document.getElementById("generateBtn");
-      const genBtn = document.getElementById("genBtn");
-      const copyBtn = document.getElementById("copyBtn");
-      const strengthFill = document.getElementById("strengthFill");
+      const UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+      const NUMBERS = "0123456789";
+
+      const SYMBOLS = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+
+      const password = document.getElementById("password");
+
+      const slider = document.getElementById("lengthSlider");
+
+      const lengthValue = document.getElementById("lengthValue");
+
+      const sliderProgress = document.getElementById("sliderProgress");
+
+      const uppercase = document.getElementById("uppercase");
+
+      const lowercase = document.getElementById("lowercase");
+
+      const numbers = document.getElementById("numbers");
+
+      const symbols = document.getElementById("symbols");
+
+      const generateButton = document.getElementById("generateButton");
+
+      const refreshButton = document.getElementById("refreshButton");
+
+      const copyButton = document.getElementById("copyButton");
+
       const strengthLabel = document.getElementById("strengthLabel");
 
-      function randInt(max) {
-        const arr = new Uint32Array(1);
-        crypto.getRandomValues(arr);
-        return arr[0] % max;
+      const strengthBlocks = document.querySelectorAll(".strength-block");
+
+      const themeButton = document.getElementById("themeButton");
+
+      const lightBackground = document.getElementById("lightBackground");
+
+      const darkBackground = document.getElementById("darkBackground");
+
+      const sunIcon = document.getElementById("sunIcon");
+
+      const moonIcon = document.getElementById("moonIcon");
+
+      /* RANDOM */
+
+      function randomNumber(max) {
+        const array = new Uint32Array(1);
+
+        crypto.getRandomValues(array);
+
+        return array[0] % max;
       }
 
-      function generatePassword() {
-        let charset = "";
-        if (optUpper.checked) charset += upper;
-        if (optLower.checked) charset += lower;
-        if (optNumbers.checked) charset += numbers;
-        if (optSymbols.checked) charset += symbols;
+      /* PASSWORD */
 
-        if (!charset) {
-          passOutput.textContent = "Pick at least one option!";
+      function generatePassword() {
+        let characters = "";
+
+        if (uppercase.checked) {
+          characters += UPPERCASE;
+        }
+
+        if (lowercase.checked) {
+          characters += LOWERCASE;
+        }
+
+        if (numbers.checked) {
+          characters += NUMBERS;
+        }
+
+        if (symbols.checked) {
+          characters += SYMBOLS;
+        }
+
+        if (!characters) {
+          password.textContent = "SELECT AN OPTION";
+
           updateStrength(0);
+
           return;
         }
 
-        const len = parseInt(lengthSlider.value, 10);
-        let pass = "";
-        for (let i = 0; i < len; i++) {
-          pass += charset[randInt(charset.length)];
+        const length = Number(slider.value);
+
+        let result = "";
+
+        for (let i = 0; i < length; i++) {
+          result += characters[randomNumber(characters.length)];
         }
-        passOutput.textContent = pass;
-        updateStrength(scorePassword(pass, len));
+
+        password.textContent = result;
+
+        updateStrength(calculateStrength());
       }
 
-      function scorePassword(pass, len) {
-        let variety = 0;
-        if (optUpper.checked) variety++;
-        if (optLower.checked) variety++;
-        if (optNumbers.checked) variety++;
-        if (optSymbols.checked) variety++;
-        let score = (len / 64) * 60 + (variety / 4) * 40;
-        return Math.min(100, Math.round(score));
+      /* STRENGTH */
+
+      function calculateStrength() {
+        const length = Number(slider.value);
+
+        let types = 0;
+
+        if (uppercase.checked) {
+          types++;
+        }
+
+        if (lowercase.checked) {
+          types++;
+        }
+
+        if (numbers.checked) {
+          types++;
+        }
+
+        if (symbols.checked) {
+          types++;
+        }
+
+        return Math.min(100, Math.round((length / 64) * 60 + (types / 4) * 40));
       }
 
       function updateStrength(score) {
-        strengthFill.style.width = score + "%";
-        let label = "WEAK",
-          color = "#e06c6c";
-        if (score > 80) {
-          label = "VERY STRONG";
-          color = "#6c5ce7";
-        } else if (score > 60) {
-          label = "STRONG";
-          color = "#7ee0c3";
-        } else if (score > 35) {
-          label = "FAIR";
-          color = "#f0c869";
+        const active = Math.ceil((score / 100) * strengthBlocks.length);
+
+        strengthBlocks.forEach((block, index) => {
+          if (index < active) {
+            block.classList.remove("bg-[#cdd2e9]", "dark:bg-[#343c5d]");
+
+            block.classList.add("bg-[#55c878]");
+          } else {
+            block.classList.remove("bg-[#55c878]");
+
+            block.classList.add("bg-[#cdd2e9]", "dark:bg-[#343c5d]");
+          }
+        });
+
+        if (score >= 80) {
+          strengthLabel.textContent = "VERY STRONG";
+        } else if (score >= 60) {
+          strengthLabel.textContent = "STRONG";
+        } else if (score >= 35) {
+          strengthLabel.textContent = "FAIR";
+        } else {
+          strengthLabel.textContent = "WEAK";
         }
-        strengthFill.style.background = color;
-        strengthLabel.textContent = label;
       }
 
-      lengthSlider.addEventListener("input", () => {
-        lengthVal.textContent = lengthSlider.value;
+      /* SLIDER */
+
+      function updateSlider() {
+        const min = Number(slider.min);
+
+        const max = Number(slider.max);
+
+        const value = Number(slider.value);
+
+        const percentage = ((value - min) / (max - min)) * 100;
+
+        sliderProgress.style.width = percentage + "%";
+
+        lengthValue.textContent = value;
+      }
+
+      /* COPY */
+
+      copyButton.addEventListener("click", async () => {
+        const text = password.textContent;
+
+        if (!text || text === "SELECT AN OPTION") {
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(text);
+
+          copyButton.classList.remove("bg-[#202641]");
+
+          copyButton.classList.add("bg-[#55c878]");
+
+          setTimeout(() => {
+            copyButton.classList.remove("bg-[#55c878]");
+
+            copyButton.classList.add("bg-[#202641]");
+          }, 900);
+        } catch (error) {}
+      });
+
+      /* EVENTS */
+
+      slider.addEventListener("input", () => {
+        updateSlider();
+
         generatePassword();
       });
 
-      [optUpper, optLower, optNumbers, optSymbols].forEach((el) => {
-        el.addEventListener("change", generatePassword);
+      [uppercase, lowercase, numbers, symbols].forEach((checkbox) => {
+        checkbox.addEventListener("change", generatePassword);
       });
 
-      generateBtn.addEventListener("click", generatePassword);
-      genBtn.addEventListener("click", generatePassword);
+      generateButton.addEventListener("click", generatePassword);
 
-      copyBtn.addEventListener("click", () => {
-        const text = passOutput.textContent;
-        if (!text || text === "Pick at least one option!") return;
-        navigator.clipboard.writeText(text).then(() => {
-          copyBtn.textContent = "DONE";
-          copyBtn.classList.add("copied");
-          setTimeout(() => {
-            copyBtn.textContent = "COPY";
-            copyBtn.classList.remove("copied");
-          }, 1200);
-        });
+      refreshButton.addEventListener("click", generatePassword);
+
+      /* THEME */
+
+      function setTheme(dark) {
+        if (dark) {
+          document.documentElement.classList.add("dark");
+
+          darkBackground.classList.remove("hidden");
+
+          lightBackground.classList.add("hidden");
+
+          sunIcon.classList.add("hidden");
+
+          moonIcon.classList.remove("hidden");
+
+          localStorage.setItem("theme", "dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+
+          darkBackground.classList.add("hidden");
+
+          lightBackground.classList.remove("hidden");
+
+          sunIcon.classList.remove("hidden");
+
+          moonIcon.classList.add("hidden");
+
+          localStorage.setItem("theme", "light");
+        }
+      }
+
+      themeButton.addEventListener("click", () => {
+        const dark = !document.documentElement.classList.contains("dark");
+
+        setTheme(dark);
       });
 
-      // initial
+      /* INITIAL THEME */
+
+      const savedTheme = localStorage.getItem("theme");
+
+      if (savedTheme === "dark") {
+        setTheme(true);
+      } else {
+        setTheme(false);
+      }
+
+      /* INITIAL UI */
+
+      updateSlider();
+
       generatePassword();
     </script>
   </body>
