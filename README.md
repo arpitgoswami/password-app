@@ -1,3 +1,5 @@
+<img width="1148" height="770" alt="image" src="https://github.com/user-attachments/assets/3cbb8073-2ff5-46a0-bbca-df4d522f3510" />
+
 # Password Generator
 
 ## Overview
