@@ -1,4 +1,4 @@
-<img width="1148" height="770" alt="image" src="https://github.com/user-attachments/assets/3cbb8073-2ff5-46a0-bbca-df4d522f3510" />
+<img width="1917" height="872" alt="image" src="https://github.com/user-attachments/assets/6339d94d-fe8b-4326-a666-9c0f1319146e" />
 
 # Password Generator
 
